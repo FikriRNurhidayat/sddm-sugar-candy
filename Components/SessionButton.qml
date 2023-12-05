@@ -39,9 +39,12 @@ Item {
 
     ComboBox {
         id: selectSession
-
+        
         hoverEnabled: true
-        anchors.left: parent.left
+        anchors.centerIn: parent.centerIn
+        width: parent.width
+        padding: 16
+        
         Keys.onPressed: {
             if (event.key == Qt.Key_Up && loginButton.state != "enabled" && !popup.opened)
                 revealSecret.focus = true,
@@ -68,14 +71,15 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             contentItem: Text {
                 text: model.name
-                font.pointSize: root.font.pointSize * 0.8
-                color: selectSession.highlightedIndex === index ? root.palette.highlight.hslLightness >= 0.7 ? "#444444" : "white" : root.palette.window.hslLightness >= 0.8 ? root.palette.highlight.hslLightness >= 0.8 ? "#444444" : root.palette.highlight : "white"
+                font.pointSize: root.font.pointSize * 0.69
+                font.family: root.font.family
+                color: selectSession.highlightedIndex === index ? root.palette.window : root.palette.text
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
             }
             highlighted: parent.highlightedIndex === index
             background: Rectangle {
-                color: selectSession.highlightedIndex === index ? root.palette.highlight : "transparent"
+                color: selectSession.highlightedIndex === index ? root.palette.text : "transparent"
             }
         }
 
@@ -85,12 +89,12 @@ Item {
 
         contentItem: Text {
             id: displayedItem
-            text: (config.TranslateSession || (textConstantSession + ":")) + " " + selectSession.currentText
+            text: selectSession.currentText
+            font.family: root.font.family
             color: root.palette.text
             verticalAlignment: Text.AlignVCenter
-            anchors.left: parent.left
-            anchors.leftMargin: 3
-            font.pointSize: root.font.pointSize * 0.8
+            horizontalAlignment: Text.AlignHCenter
+            font.pointSize: root.font.pointSize * 0.69
             Keys.onReleased: parent.popup.open()
         }
 
@@ -100,18 +104,14 @@ Item {
             border.color: "transparent"
             height: parent.visualFocus ? 2 : 0
             width: displayedItem.implicitWidth
-            anchors.top: parent.bottom
-            anchors.left: parent.left
-            anchors.leftMargin: 3
         }
 
         popup: Popup {
             id: popupHandler
-            y: parent.height - 1
+            y: parent.height - 8
             x: config.ForceRightToLeft == "true" ? -loginButtonWidth + displayedItem.width : 0
             width: sessionButton.width
             implicitHeight: contentItem.implicitHeight
-            padding: 10
 
             contentItem: ListView {
                 clip: true
@@ -123,62 +123,15 @@ Item {
 
             background: Rectangle {
                 radius: config.RoundCorners / 2
-                color: config.BackgroundColor
+                color: root.palette.text
+                opacity: 0.2
                 layer.enabled: true
-                layer.effect: DropShadow {
-                    transparentBorder: true
-                    horizontalOffset: 0
-                    verticalOffset: 0
-                    radius: 20 * config.InterfaceShadowSize
-                    samples: 41 * config.InterfaceShadowSize
-                    cached: true
-                    color: Qt.hsla(0,0,0,config.InterfaceShadowOpacity)
-                }
             }
 
             enter: Transition {
                 NumberAnimation { property: "opacity"; from: 0; to: 1 }
             }
         }
-
-        states: [
-            State {
-                name: "pressed"
-                when: selectSession.down
-                PropertyChanges {
-                    target: displayedItem
-                    color: Qt.darker(root.palette.highlight, 1.1)
-                }
-                PropertyChanges {
-                    target: selectSession.background
-                    border.color: Qt.darker(root.palette.highlight, 1.1)
-                }
-            },
-            State {
-                name: "hovered"
-                when: selectSession.hovered
-                PropertyChanges {
-                    target: displayedItem
-                    color: Qt.lighter(root.palette.highlight, 1.1)
-                }
-                PropertyChanges {
-                    target: selectSession.background
-                    border.color: Qt.lighter(root.palette.highlight, 1.1)
-                }
-            },
-            State {
-                name: "focused"
-                when: selectSession.visualFocus
-                PropertyChanges {
-                    target: displayedItem
-                    color: root.palette.highlight
-                }
-                PropertyChanges {
-                    target: selectSession.background
-                    border.color: root.palette.highlight
-                }
-            }
-        ]
 
         transitions: [
             Transition {
